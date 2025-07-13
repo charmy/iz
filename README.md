@@ -59,4 +59,3 @@ commands:
 
 - `Ctrl+S` - Save config
 - `Esc` - Cancel editing
-# iz

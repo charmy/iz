@@ -1,0 +1,129 @@
+name: "🔍iz - Interactive Command Manager"
+description: "A powerful TUI for managing and executing commands"
+
+settings:
+  confirm: true
+
+commands:
+  - name: "System"
+    expanded: false
+    children:
+      - name: "List Files"
+        command: "ls -la"
+        description: "List all files in current directory"
+        confirm: false
+      
+      - name: "Current Directory"
+        command: "pwd"
+        description: "Show current working directory"
+        confirm: false
+        
+      - name: "Disk Usage"
+        command: "df -h"
+        description: "Show disk space usage"
+        confirm: false
+        
+      - name: "Memory Info"
+        command: "free -h || top -l 1 | head -n 10"
+        description: "Show memory usage (Linux/macOS compatible)"
+        confirm: false
+        
+      - name: "System Update"
+        sequence:
+          - "echo 'Starting system update...'"
+          - "sudo apt update || brew update"
+          - "sudo apt upgrade -y || brew upgrade"
+          - "echo 'System update completed!'"
+        description: "Update system packages (Linux/macOS)"
+        confirm: true
+
+  - name: "Network"
+    expanded: false
+    children:
+      - name: "Ping Host"
+        command: "ping -c {count} {host}"
+        description: "Ping a host with specified count"
+        confirm: false
+        variables:
+          - name: "count"
+            description: "Number of ping attempts"
+            default: "4"
+            options:
+              - label: "Quick (1 ping)"
+                value: "1"
+              - label: "Normal (4 pings)"
+                value: "4"
+              - label: "Extended (10 pings)"
+                value: "10"
+              - label: "Custom..."
+                value: "custom"
+          - name: "host"
+            description: "Target hostname or IP"
+            default: "google.com"
+            
+      - name: "Check Port"
+        command: "nc -zv {host} {port}"
+        description: "Check if a port is open on a host"
+        confirm: false
+        variables:
+          - name: "host"
+            description: "Target hostname or IP"
+            default: "localhost"
+          - name: "port"
+            description: "Port number to check"
+            default: "80"
+            options:
+              - label: "HTTP (80)"
+                value: "80"
+              - label: "HTTPS (443)"
+                value: "443"
+              - label: "SSH (22)"
+                value: "22"
+              - label: "Custom..."
+                value: "custom"
+                
+      - name: "Network Diagnostics"
+        sequence:
+          - "echo 'Running network diagnostics...'"
+          - "ping -c 3 google.com"
+          - "nslookup google.com"
+          - "traceroute google.com || tracert google.com"
+        description: "Complete network connectivity test"
+        confirm: false
+
+  - name: "Development"
+    expanded: false
+    children:
+      - name: "Git Status"
+        command: "git status"
+        description: "Show git repository status"
+        confirm: false
+        
+      - name: "Git Log"
+        command: "git log --oneline -n {count}"
+        description: "Show recent git commits"
+        confirm: false
+        variables:
+          - name: "count"
+            description: "Number of commits to show"
+            default: "10"
+            options:
+              - label: "Last 5 commits"
+                value: "5"
+              - label: "Last 10 commits"
+                value: "10"
+              - label: "Last 20 commits"
+                value: "20"
+              - label: "Custom..."
+                value: "custom"
+                
+      - name: "Deploy Workflow"
+        sequence:
+          - "echo 'Starting deployment...'"
+          - "git pull origin main"
+          - "npm install"
+          - "npm run build"
+          - "npm test"
+          - "echo 'Deployment completed!'"
+        description: "Full deployment workflow"
+        confirm: true
