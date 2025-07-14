@@ -17,7 +17,7 @@ func (m App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		key := msg.String()
-		if key == "ctrl+c" || key == "q" {
+		if key == "ctrl+c" {
 			return m, tea.Quit
 		}
 		if key == "?" {
@@ -27,9 +27,21 @@ func (m App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if key == "e" && !m.ShowInputs && !m.ShowConfirm && !m.ShowHelp {
 			return m, m.openConfigInEditor()
 		}
-		if key == "esc" && m.ShowHelp {
-			m.ShowHelp = false
-			return m, nil
+		if key == "esc" {
+			// ESC behavior: close modal if open, otherwise quit
+			if m.ShowHelp {
+				m.ShowHelp = false
+				return m, nil
+			} else if m.ShowInputs {
+				// Let handleInputKeys handle ESC for input modal
+				return m.handleKeyPress(msg)
+			} else if m.ShowConfirm {
+				// Let handleConfirmKeys handle ESC for confirm modal
+				return m.handleKeyPress(msg)
+			} else {
+				// No modal open, quit the application
+				return m, tea.Quit
+			}
 		}
 		return m.handleKeyPress(msg)
 	case tea.WindowSizeMsg:
@@ -73,6 +85,11 @@ func (m App) handleKeyPress(msg tea.Msg) (App, tea.Cmd) {
 }
 
 func (m App) handleConfirmKeys(key string) (App, tea.Cmd) {
+	// Handle quit keys in confirm mode
+	if key == "ctrl+c" {
+		return m, tea.Quit
+	}
+
 	switch key {
 	case "left", "h", "right", "l":
 		m.ConfirmYes = !m.ConfirmYes
@@ -190,6 +207,11 @@ func (m App) handleEnter() (App, tea.Cmd) {
 func (m App) handleInputKeys(msg tea.Msg) (App, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		// Handle quit keys in input mode
+		if msg.String() == "ctrl+c" {
+			return m, tea.Quit
+		}
+
 		switch msg.Type {
 		case tea.KeyTab:
 			// Switch between input fields

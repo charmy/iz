@@ -173,7 +173,7 @@ func (m App) renderStatusBar() string {
 		return statusStyle.Render("Keyboard shortcuts • Esc to close help")
 	}
 
-	return statusStyle.Render("Use ↑/↓ to navigate • Enter/r to run • e to edit config • ? for help • q to quit")
+	return statusStyle.Render("Use ↑/↓ to navigate • Enter/r to run • e to edit config • ? for help • ESC to quit")
 }
 
 func (m App) renderNode(node *tree.TreeNode, selected bool) string {

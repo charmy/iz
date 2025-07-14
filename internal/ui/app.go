@@ -104,8 +104,8 @@ func NewApp(treeRoot *tree.TreeNode, defaultConfirm bool) App {
 			key.WithHelp("?", "toggle help"),
 		),
 		Quit: key.NewBinding(
-			key.WithKeys("q", "ctrl+c"),
-			key.WithHelp("q", "quit"),
+			key.WithKeys("esc", "ctrl+c"),
+			key.WithHelp("esc", "quit"),
 		),
 	}
 
