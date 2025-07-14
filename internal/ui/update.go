@@ -228,6 +228,18 @@ func (m App) handleInputKeys(msg tea.Msg) (App, tea.Cmd) {
 						currentField.ShowCustomInput = false
 						currentField.CustomInput.Blur()
 					}
+				} else {
+					// If we're at the first choice, move to previous field
+					if m.InputCursor > 0 {
+						m.InputCursor--
+						// Focus previous field
+						prevField := &m.InputFields[m.InputCursor]
+						if !prevField.IsChoice {
+							prevField.TextInput.Focus()
+						} else if prevField.IsChoice && prevField.ShowCustomInput {
+							prevField.CustomInput.Focus()
+						}
+					}
 				}
 			} else {
 				// Navigate between fields
@@ -267,6 +279,18 @@ func (m App) handleInputKeys(msg tea.Msg) (App, tea.Cmd) {
 					} else {
 						currentField.ShowCustomInput = false
 						currentField.CustomInput.Blur()
+					}
+				} else {
+					// If we're at the last choice, move to next field
+					if m.InputCursor < len(m.InputFields)-1 {
+						m.InputCursor++
+						// Focus next field
+						nextField := &m.InputFields[m.InputCursor]
+						if !nextField.IsChoice {
+							nextField.TextInput.Focus()
+						} else if nextField.IsChoice && nextField.ShowCustomInput {
+							nextField.CustomInput.Focus()
+						}
 					}
 				}
 			} else {
