@@ -162,7 +162,7 @@ func (m App) renderStatusBar() string {
 		Padding(0, 1)
 
 	if m.ShowInputs {
-		return statusStyle.Render("Type to input • Built-in paste support • ↑/↓ or Tab to switch fields • Enter when all filled • ESC to go back")
+		return statusStyle.Render("↑/↓ or Tab/Shift+Tab to switch fields • Enter when all filled • ESC to go back")
 	}
 
 	if m.ShowConfirm {

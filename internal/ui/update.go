@@ -212,6 +212,31 @@ func (m App) handleInputKeys(msg tea.Msg) (App, tea.Cmd) {
 			return m, tea.Quit
 		}
 
+		// Handle Shift+Tab for reverse navigation
+		if msg.String() == "shift+tab" {
+			// Switch to previous input field
+			if m.InputCursor > 0 {
+				// Blur current field
+				currentField := &m.InputFields[m.InputCursor]
+				if currentField.IsChoice && currentField.ShowCustomInput {
+					currentField.CustomInput.Blur()
+				} else if !currentField.IsChoice {
+					currentField.TextInput.Blur()
+				}
+
+				m.InputCursor--
+
+				// Focus previous field
+				prevField := &m.InputFields[m.InputCursor]
+				if !prevField.IsChoice {
+					prevField.TextInput.Focus()
+				} else if prevField.IsChoice && prevField.ShowCustomInput {
+					prevField.CustomInput.Focus()
+				}
+			}
+			return m, nil
+		}
+
 		switch msg.Type {
 		case tea.KeyTab:
 			// Switch between input fields
