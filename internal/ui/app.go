@@ -19,7 +19,7 @@ type App struct {
 	Cursor int
 	Tree   *tree.TreeNode
 
-	// Modal states
+	// Dialog states
 	ShowConfirm    bool
 	ConfirmYes     bool
 	PendingCommand string

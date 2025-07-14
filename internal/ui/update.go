@@ -28,18 +28,18 @@ func (m App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.openConfigInEditor()
 		}
 		if key == "esc" {
-			// ESC behavior: close modal if open, otherwise quit
+			// ESC behavior: close dialog if open, otherwise quit
 			if m.ShowHelp {
 				m.ShowHelp = false
 				return m, nil
 			} else if m.ShowInputs {
-				// Let handleInputKeys handle ESC for input modal
+				// Let handleInputKeys handle ESC for input dialog
 				return m.handleKeyPress(msg)
 			} else if m.ShowConfirm {
-				// Let handleConfirmKeys handle ESC for confirm modal
+				// Let handleConfirmKeys handle ESC for confirm dialog
 				return m.handleKeyPress(msg)
 			} else {
-				// No modal open, quit the application
+				// No dialog open, quit the application
 				return m, tea.Quit
 			}
 		}
@@ -117,7 +117,7 @@ func (m App) handleEnter() (App, tea.Cmd) {
 			// Check if command has variables
 			variables := tree.ExtractVariables(node.Command)
 			if len(variables) > 0 {
-				// Show input modal for variables
+				// Show input dialog for variables
 				m.ShowInputs = true
 				m.InputCursor = 0
 				m.InputFields = []InputField{}

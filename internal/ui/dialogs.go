@@ -8,10 +8,10 @@ import (
 )
 
 func (m App) renderWithConfirmDialog(mainView string) string {
-	modalWidth := 50
-	modalHeight := 10
+	dialogWidth := 50
+	dialogHeight := 10
 
-	// Create modal content
+	// Create dialog content
 	visibleNodes := m.getVisibleNodes()
 	commandName := "Unknown"
 	if m.Cursor < len(visibleNodes) {
@@ -23,7 +23,7 @@ func (m App) renderWithConfirmDialog(mainView string) string {
 		Bold(true).
 		Foreground(lipgloss.Color("205")).
 		Align(lipgloss.Center).
-		Width(modalWidth-4).
+		Width(dialogWidth-4).
 		Padding(0, 1).
 		Render("Run Command?")
 
@@ -35,14 +35,14 @@ func (m App) renderWithConfirmDialog(mainView string) string {
 	nameText := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("250")).
 		Align(lipgloss.Center).
-		Width(modalWidth - 4).
+		Width(dialogWidth - 4).
 		Render(fmt.Sprintf("Task: %s", commandName))
 
 	commandDisplay := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("39")).
 		Background(lipgloss.Color("236")).
 		Align(lipgloss.Center).
-		Width(modalWidth-4).
+		Width(dialogWidth-4).
 		Padding(0, 1).
 		Render(fmt.Sprintf("$ %s", commandText))
 
@@ -67,7 +67,7 @@ func (m App) renderWithConfirmDialog(mainView string) string {
 		noStyle.Render(" NO "),
 	)
 
-	modalContent := lipgloss.JoinVertical(
+	dialogContent := lipgloss.JoinVertical(
 		lipgloss.Center,
 		title, "",
 		nameText, "",
@@ -75,32 +75,36 @@ func (m App) renderWithConfirmDialog(mainView string) string {
 		buttons,
 	)
 
-	// Create modal box
-	modalStyle := lipgloss.NewStyle().
-		Width(modalWidth).
-		Height(modalHeight).
+	// Create dialog box
+	dialogStyle := lipgloss.NewStyle().
+		Width(dialogWidth).
+		Height(dialogHeight).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("63")).
 		Padding(1).
 		Align(lipgloss.Center)
 
-	modal := modalStyle.Render(modalContent)
+	dialog := dialogStyle.Render(dialogContent)
 
-	// Overlay modal on dimmed background
-	return lipgloss.Place(
-		m.Width, m.Height,
+	// Create dialog with status bar
+	dialogWithStatusHeight := m.Height - 3 // Leave space for status bar
+	dialogOverlay := lipgloss.Place(
+		m.Width, dialogWithStatusHeight,
 		lipgloss.Center, lipgloss.Center,
-		modal,
+		dialog,
 		lipgloss.WithWhitespaceBackground(lipgloss.Color("234")),
 		lipgloss.WithWhitespaceForeground(lipgloss.Color("240")),
 	)
+
+	// Combine dialog and status bar
+	return lipgloss.JoinVertical(lipgloss.Left, dialogOverlay, m.renderStatusBar())
 }
 
 func (m App) renderWithInputDialog(mainView string) string {
-	modalWidth := 60
-	modalHeight := 6 + len(m.InputFields)*2
+	dialogWidth := 60
+	dialogHeight := 6 + len(m.InputFields)*2
 
-	// Create modal content
+	// Create dialog content
 	visibleNodes := m.getVisibleNodes()
 	commandName := "Unknown"
 	if m.Cursor < len(visibleNodes) {
@@ -112,21 +116,21 @@ func (m App) renderWithInputDialog(mainView string) string {
 		Bold(true).
 		Foreground(lipgloss.Color("205")).
 		Align(lipgloss.Center).
-		Width(modalWidth-4).
+		Width(dialogWidth-4).
 		Padding(0, 1).
 		Render("Enter Parameters")
 
 	taskText := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("250")).
 		Align(lipgloss.Center).
-		Width(modalWidth - 4).
+		Width(dialogWidth - 4).
 		Render(fmt.Sprintf("Command: %s", commandName))
 
 	commandDisplay := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("39")).
 		Background(lipgloss.Color("236")).
 		Align(lipgloss.Center).
-		Width(modalWidth-4).
+		Width(dialogWidth-4).
 		Padding(0, 1).
 		Render(fmt.Sprintf("$ %s", m.PendingCommand))
 
@@ -135,7 +139,7 @@ func (m App) renderWithInputDialog(mainView string) string {
 		label := lipgloss.NewStyle().
 			Foreground(lipgloss.Color("214")).
 			Bold(true).
-			Width(modalWidth - 8).
+			Width(dialogWidth - 8).
 			Render(fmt.Sprintf("%s:", field.Name))
 
 		inputs = append(inputs, label)
@@ -168,7 +172,7 @@ func (m App) renderWithInputDialog(mainView string) string {
 			}
 
 			choiceStyle := lipgloss.NewStyle().
-				Width(modalWidth-8).
+				Width(dialogWidth-8).
 				Border(lipgloss.RoundedBorder()).
 				Padding(0, 1)
 
@@ -190,7 +194,7 @@ func (m App) renderWithInputDialog(mainView string) string {
 		}
 	}
 
-	modalContent := lipgloss.JoinVertical(
+	dialogContent := lipgloss.JoinVertical(
 		lipgloss.Center,
 		title,
 		"",
@@ -201,25 +205,29 @@ func (m App) renderWithInputDialog(mainView string) string {
 		strings.Join(inputs, "\n"),
 	)
 
-	// Create modal box
-	modalStyle := lipgloss.NewStyle().
-		Width(modalWidth).
-		Height(modalHeight).
+	// Create dialog box
+	dialogStyle := lipgloss.NewStyle().
+		Width(dialogWidth).
+		Height(dialogHeight).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("63")).
 		Padding(1).
 		Align(lipgloss.Center)
 
-	modal := modalStyle.Render(modalContent)
+	dialog := dialogStyle.Render(dialogContent)
 
-	// Overlay modal on dimmed background
-	return lipgloss.Place(
-		m.Width, m.Height,
+	// Create dialog with status bar
+	dialogWithStatusHeight := m.Height - 3 // Leave space for status bar
+	dialogOverlay := lipgloss.Place(
+		m.Width, dialogWithStatusHeight,
 		lipgloss.Center, lipgloss.Center,
-		modal,
+		dialog,
 		lipgloss.WithWhitespaceBackground(lipgloss.Color("234")),
 		lipgloss.WithWhitespaceForeground(lipgloss.Color("240")),
 	)
+
+	// Combine dialog and status bar
+	return lipgloss.JoinVertical(lipgloss.Left, dialogOverlay, m.renderStatusBar())
 }
 
 func (m App) renderWithHelpDialog(mainView string) string {
@@ -256,11 +264,16 @@ func (m App) renderWithHelpDialog(mainView string) string {
 
 	helpBox := helpStyle.Render(helpContent)
 
-	return lipgloss.Place(
-		m.Width, m.Height,
+	// Create dialog with status bar
+	dialogWithStatusHeight := m.Height - 3 // Leave space for status bar
+	dialogOverlay := lipgloss.Place(
+		m.Width, dialogWithStatusHeight,
 		lipgloss.Center, lipgloss.Center,
 		helpBox,
 		lipgloss.WithWhitespaceBackground(lipgloss.Color("234")),
 		lipgloss.WithWhitespaceForeground(lipgloss.Color("240")),
 	)
+
+	// Combine dialog and status bar
+	return lipgloss.JoinVertical(lipgloss.Left, dialogOverlay, m.renderStatusBar())
 }

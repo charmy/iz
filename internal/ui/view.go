@@ -162,15 +162,15 @@ func (m App) renderStatusBar() string {
 		Padding(0, 1)
 
 	if m.ShowInputs {
-		return statusStyle.Render("Type to input • Built-in paste support • ↑/↓ or Tab to switch fields • Enter when all filled • Esc to cancel")
+		return statusStyle.Render("Type to input • Built-in paste support • ↑/↓ or Tab to switch fields • Enter when all filled • ESC to go back")
 	}
 
 	if m.ShowConfirm {
-		return statusStyle.Render("Use ←/→ to select • Enter to confirm • Esc to cancel")
+		return statusStyle.Render("Use ←/→ to select • Enter to confirm • ESC to go back")
 	}
 
 	if m.ShowHelp {
-		return statusStyle.Render("Keyboard shortcuts • Esc to close help")
+		return statusStyle.Render("Keyboard shortcuts • ESC to go back")
 	}
 
 	return statusStyle.Render("Use ↑/↓ to navigate • Enter/r to run • e to edit config • ? for help • ESC to quit")
