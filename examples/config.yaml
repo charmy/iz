@@ -22,20 +22,6 @@ commands:
         command: "df -h"
         description: "Show disk space usage"
         confirm: false
-        
-      - name: "Memory Info"
-        command: "free -h || top -l 1 | head -n 10"
-        description: "Show memory usage (Linux/macOS compatible)"
-        confirm: false
-        
-      - name: "System Update"
-        sequence:
-          - "echo 'Starting system update...'"
-          - "sudo apt update || brew update"
-          - "sudo apt upgrade -y || brew upgrade"
-          - "echo 'System update completed!'"
-        description: "Update system packages (Linux/macOS)"
-        confirm: true
 
   - name: "Network"
     expanded: false
@@ -81,15 +67,6 @@ commands:
                 value: "22"
               - label: "Custom..."
                 value: "custom"
-                
-      - name: "Network Diagnostics"
-        sequence:
-          - "echo 'Running network diagnostics...'"
-          - "ping -c 3 google.com"
-          - "nslookup google.com"
-          - "traceroute google.com || tracert google.com"
-        description: "Complete network connectivity test"
-        confirm: false
 
   - name: "Development"
     expanded: false
@@ -116,14 +93,3 @@ commands:
                 value: "20"
               - label: "Custom..."
                 value: "custom"
-                
-      - name: "Deploy Workflow"
-        sequence:
-          - "echo 'Starting deployment...'"
-          - "git pull origin main"
-          - "npm install"
-          - "npm run build"
-          - "npm test"
-          - "echo 'Deployment completed!'"
-        description: "Full deployment workflow"
-        confirm: true
