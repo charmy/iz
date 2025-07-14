@@ -24,11 +24,14 @@ type TreeNode struct {
 }
 
 // ConvertConfigToTree converts configuration to tree structure
-func ConvertConfigToTree(cfg *config.ConfigNode, defaultConfirm bool) *TreeNode {
+func ConvertConfigToTree(cfg *config.ConfigNode, defaultConfirm bool, globalVariables []config.VariableConfig) *TreeNode {
 	confirmSetting := defaultConfirm
 	if cfg.Confirm != nil {
 		confirmSetting = *cfg.Confirm
 	}
+
+	// Merge global variables with local variables (local overrides global)
+	mergedVariables := mergeVariables(globalVariables, cfg.Variables)
 
 	node := &TreeNode{
 		Name:        cfg.Name,
@@ -37,14 +40,47 @@ func ConvertConfigToTree(cfg *config.ConfigNode, defaultConfirm bool) *TreeNode 
 		Command:     cfg.Command,
 		Description: cfg.Description,
 		Confirm:     confirmSetting,
-		Variables:   cfg.Variables,
+		Variables:   mergedVariables,
 	}
 
 	for i := range cfg.Children {
-		node.Children = append(node.Children, ConvertConfigToTree(&cfg.Children[i], defaultConfirm))
+		node.Children = append(node.Children, ConvertConfigToTree(&cfg.Children[i], defaultConfirm, globalVariables))
 	}
 
 	return node
+}
+
+// mergeVariables merges global variables with local variables (local overrides global)
+func mergeVariables(globalVars, localVars []config.VariableConfig) []config.VariableConfig {
+	// Create a map of local variables by name for fast lookup
+	localVarMap := make(map[string]config.VariableConfig)
+	for _, localVar := range localVars {
+		localVarMap[localVar.Name] = localVar
+	}
+
+	// Start with global variables
+	merged := make([]config.VariableConfig, 0, len(globalVars)+len(localVars))
+	globalVarMap := make(map[string]bool)
+
+	for _, globalVar := range globalVars {
+		if localVar, exists := localVarMap[globalVar.Name]; exists {
+			// Local variable overrides global
+			merged = append(merged, localVar)
+		} else {
+			// Use global variable
+			merged = append(merged, globalVar)
+		}
+		globalVarMap[globalVar.Name] = true
+	}
+
+	// Add any local variables that weren't in global variables
+	for _, localVar := range localVars {
+		if !globalVarMap[localVar.Name] {
+			merged = append(merged, localVar)
+		}
+	}
+
+	return merged
 }
 
 // BuildTreeFromConfig creates tree structure from new config format
@@ -63,7 +99,7 @@ func BuildTreeFromConfig(cfg *config.Config) *TreeNode {
 	}
 
 	for i := range cfg.Commands {
-		root.Children = append(root.Children, ConvertConfigToTree(&cfg.Commands[i], defaultConfirm))
+		root.Children = append(root.Children, ConvertConfigToTree(&cfg.Commands[i], defaultConfirm, cfg.Variables))
 	}
 
 	return root
@@ -72,7 +108,7 @@ func BuildTreeFromConfig(cfg *config.Config) *TreeNode {
 // ExtractVariables extracts unique variable placeholders from command string
 // Supports {variable} format and returns deduplicated list
 func ExtractVariables(command string) []string {
-	re := regexp.MustCompile(`\{(\w+)\}`)
+	re := regexp.MustCompile(`\{([\w-]+)\}`)
 	matches := re.FindAllStringSubmatch(command, -1)
 
 	var variables []string

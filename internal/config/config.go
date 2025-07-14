@@ -82,6 +82,24 @@ description: "A powerful TUI for managing and executing commands"
 settings:
   confirm: true
 
+# Global variables - available to all commands
+variables:
+  - name: "host"
+    description: "Default target hostname or IP"
+    default: "localhost"
+    options:
+      - label: "Local (localhost)"
+        value: "localhost"
+      - label: "Production Server"
+        value: "prod.example.com"
+      - label: "Development Server"
+        value: "dev.example.com"
+      - label: "Custom..."
+        value: "custom"
+  - name: "user"
+    description: "Default username"
+    default: "root"
+
 commands:
   - name: "System"
     expanded: false
@@ -150,6 +168,23 @@ commands:
                 value: "22"
               - label: "Custom..."
                 value: "custom"
+
+      - name: "SSH Connect"
+        command: "ssh {user}@{host}"
+        description: "Connect to a server via SSH (uses global variables)"
+        confirm: false
+        # This command uses global variables: host and user
+        # No local variables defined, so it uses global defaults
+
+      - name: "SSH with Custom Port"
+        command: "ssh -p {port} {user}@{host}"
+        description: "Connect via SSH with custom port"
+        confirm: false
+        variables:
+          - name: "port"
+            description: "SSH port number"
+            default: "22"
+        # host and user come from global variables, port is local
 
   - name: "Development"
     expanded: false
